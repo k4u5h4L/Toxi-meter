@@ -7,6 +7,9 @@ const App = () => {
     const [submit, setSubmit] = useState(false);
     const [status, setStatus] = useState('');
     const [resColor, setResColor] = useState('grey'); // 0 = black, 1 = red, 2 = blue
+    const [links, setLinks] = useState([]);
+    const [positives, setPositives] = useState([]);
+    const [comments, setComments] = useState([]);
 
     let loadingGif = document.getElementById('loadingGif');
 
@@ -18,12 +21,23 @@ const App = () => {
                     user: query,
                 })
                 .then((response) => {
-                    // console.log(response.data);
+                    console.log(response.data);
+
                     let sum = 0;
-                    for (let i = 0; i < response.data.message.length; i++) {
-                        sum = sum + response.data.message[i];
+                    let indexes = [];
+
+                    for (let i = 0; i < response.data.predictions.length; i++) {
+                        sum = sum + response.data.predictions[i];
+                        if (response.data.predictions[i] === 1) {
+                            indexes.push(i);
+                        }
                     }
+
                     setStatus('Done!');
+                    setLinks(response.data.links);
+                    setComments(response.data.comments);
+                    setPositives(indexes);
+
                     loadingGif.removeAttribute('src');
                     setResult(
                         sum >= 1
@@ -126,14 +140,20 @@ const App = () => {
                             </button>
                         </div>
                     </div>
-                    {/* <div className="container-contact100-form-btn">
-                        <span
-                            className="contact100-more"
-                            style={{ color: 'black' }}
-                        >
-                            Powered by React, Django and Tensorflow-Keras
-                        </span>
-                    </div> */}
+                    <div className="container-contact100-form-btn">
+                        <ul>
+                            {positives.map(() => (
+                                <li>
+                                    <span
+                                        className="contact100-more"
+                                        style={{ color: 'black' }}
+                                    >
+                                        Comments:
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </form>
             </div>
 

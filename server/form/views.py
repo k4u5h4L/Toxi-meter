@@ -27,7 +27,7 @@ def api(request):
         print(request_body)
 
         user = [request_body['user']]
-        comments = scrape.scrape_comments(user[0])
+        (comments, links) = scrape.scrape_comments(user[0])
         # print(f"comments: {comments}")
         sequences = tokenizer.texts_to_sequences(comments)
         padded = pad_sequences(sequences, maxlen=150,
@@ -40,7 +40,9 @@ def api(request):
         result = {}
 
         result['route'] = 'api route POST'
-        result['message'] = np.array(predictions, dtype=int).tolist()
+        result['predictions'] = np.array(predictions, dtype=int).tolist()
+        result['comments'] = comments
+        result['links'] = links
 
         print(result)
         return HttpResponse(json.dumps(result))

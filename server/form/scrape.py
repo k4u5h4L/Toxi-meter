@@ -12,8 +12,8 @@ def scrape_comments(user):
     chrome_options.add_argument("--headless")
     # chrome_options.add_argument("--window-size=1920x1080")
 
-    # browser = webdriver.Chrome(chrome_options=chrome_options)
-    browser = webdriver.Chrome()
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+    # browser = webdriver.Chrome()
 
     browser.get(f"https://www.reddit.com/user/{user}/comments/")
     time.sleep(1)
@@ -38,4 +38,11 @@ def scrape_comments(user):
 
     # print(len(soup.findAll("p")[:-1]))
 
-    return comments
+    links = []
+
+    for i in soup.findAll("h3"):
+        parent_element = i.parent.parent
+        # print('https://reddit.com' + str(parent_element.get('href')))
+        links.append('https://reddit.com' + str(parent_element.get('href')))
+
+    return (comments[:45], links[:45])
