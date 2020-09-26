@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from . import scrape
 
 from tensorflow.keras.models import load_model
 import numpy as np
@@ -25,14 +26,24 @@ def api(request):
         request_body = json.loads(request.body.decode("utf-8"))
         print(request_body)
 
-        sentence = [request_body['review']]
-        sequences = tokenizer.texts_to_sequences(sentence)
-        padded = pad_sequences(sequences, maxlen=100,
+        user = [request_body['user']]
+        comments = scrape.scrape_comments(user[0])
+        # print(f"comments: {comments}")
+        sequences = tokenizer.texts_to_sequences(comments)
+        padded = pad_sequences(sequences, maxlen=150,
                                padding='post', truncating='post')
         pred_temp = model.predict(padded)
-        pred = np.round(pred_temp[0][0])
-        print(pred)
+        predictions = []
+        for pred in pred_temp:
+            predictions.append(np.round(pred[0]))
 
-        return HttpResponse(json.dumps({'route': 'api route POST', 'message': int(pred)}))
+        result = {}
+
+        result['route'] = 'api route POST'
+        result['message'] = np.array(predictions, dtype=int).tolist()
+
+        print(result)
+        return HttpResponse(json.dumps(result))
     else:
-        return HttpResponse(json.dumps({'message': 'api route GET'}))
+        testArr = [1.0, 0.0, 1.0, 0.0]
+        return HttpResponse(json.dumps({'message': 'api route GET', 'array': testArr}))
