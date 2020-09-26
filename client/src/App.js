@@ -1,100 +1,147 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
 
 const App = () => {
-  const [query, setQuery] = useState("");
-  const [result, setResult] = useState(0);
-  const [submit, setSubmit] = useState(false);
+    const [query, setQuery] = useState('');
+    const [result, setResult] = useState('Your results will be shown here');
+    const [submit, setSubmit] = useState(false);
+    const [status, setStatus] = useState('');
+    const [resColor, setResColor] = useState('grey'); // 0 = black, 1 = red, 2 = blue
 
-  useEffect(() => {
-    const postData = async () => {
-      axios
-        .post("http://localhost:8000/api/", {
-          review: query,
-        })
-        .then((response) => {
-          // console.log(response.data);
-          setResult(response.data.message);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+    let loadingGif = document.getElementById('loadingGif');
+
+    const firstUpdate = useRef(true);
+    useEffect(() => {
+        const postData = async () => {
+            axios
+                .post('http://localhost:8000/api/', {
+                    user: query,
+                })
+                .then((response) => {
+                    // console.log(response.data);
+                    let sum = 0;
+                    for (let i = 0; i < response.data.message.length; i++) {
+                        sum = sum + response.data.message[i];
+                    }
+                    setStatus('Done!');
+                    loadingGif.removeAttribute('src');
+                    setResult(
+                        sum >= 1
+                            ? 'I think this user has toxic comments'
+                            : "I don't think this user has toxic comments"
+                    );
+                    setResColor(() => {
+                        if (sum >= 1) {
+                            return 'red';
+                        } else {
+                            return 'green';
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        };
+
+        if (firstUpdate.current) {
+            firstUpdate.current = false;
+            return;
+        }
+        postData();
+    }, [submit]);
+
+    const handleChange = (e) => {
+        // console.log(`query: ${query}`);
+        setQuery(e.target.value);
     };
 
-    postData();
-  }, [submit]);
+    const handleSubmit = () => {
+        setSubmit(!submit);
 
-  const handleChange = (e) => {
-    // console.log(`query: ${query}`);
-    setQuery(e.target.value);
-  };
+        loadingGif.src =
+            'https://raw.githubusercontent.com/k4u5h4L/OffThePan/master/public/img/gifs/loading-model.gif';
 
-  const handleSubmit = () => {
-    setSubmit(!submit);
-  };
+        setStatus('Loading...');
+        setResult('Your results will be shown here');
+        setResColor('grey');
+    };
 
-  return (
-    <div
-      className="container-contact100"
-      style={{ backgroundImage: "url('images/bg-01.jpg')" }}
-    >
-      <div className="wrap-contact100">
-        <form className="contact100-form validate-form">
-          <span className="contact100-form-title">
-            Input a movie review to determine whether it's positive or not!
-          </span>
+    return (
+        <div
+            className="container-contact100"
+            style={{ backgroundImage: "url('images/bg-01.jpg')" }}
+        >
+            <div className="wrap-contact100">
+                <form className="contact100-form validate-form">
+                    <span className="contact100-form-title">
+                        Input a reddit username to determine whether he/she has
+                        posted toxic comments or not!
+                    </span>
 
-          <div
-            className="wrap-input100 validate-input"
-            data-validate="Message is required"
-          >
-            <span className="label-input100">Movie Review</span>
-            <textarea
-              className="input100"
-              name="headline"
-              placeholder="Enter Review Here..."
-              value={query}
-              onChange={(event) => handleChange(event)}
-            ></textarea>
-          </div>
+                    <div
+                        className="wrap-input100 validate-input"
+                        data-validate="Message is required"
+                    >
+                        <span className="label-input100">Reddit username</span>
+                        <textarea
+                            className="input100"
+                            name="headline"
+                            placeholder="Enter Username Here..."
+                            value={query}
+                            onChange={(event) => handleChange(event)}
+                        ></textarea>
+                    </div>
 
-          <div className="wrap-input100">
-            <span className="label-input100">Result</span>
-            <input
-              style={{ color: result ? "green" : "red" }}
-              className="input100"
-              type="text"
-              name="web"
-              placeholder="Result"
-              readOnly={true}
-              value={
-                result
-                  ? "I think this is a positive review"
-                  : "I don't think this is a positive review"
-              }
-            />
-          </div>
+                    <div className="wrap-input100">
+                        <span className="label-input100">Result</span>
+                        <input
+                            style={{
+                                color: resColor,
+                            }}
+                            className="input100"
+                            type="text"
+                            name="web"
+                            placeholder="Result"
+                            readOnly={true}
+                            value={result}
+                        />
+                        <span
+                            className="contact100-more"
+                            style={{ color: 'black' }}
+                        >
+                            {status}
+                            <img id="loadingGif" width="195px" />
+                        </span>
+                    </div>
 
-          <div className="container-contact100-form-btn">
-            <div className="wrap-contact100-form-btn">
-              <div className="contact100-form-bgbtn"></div>
-              <button
-                type="button"
-                className="contact100-form-btn"
-                onClick={() => handleSubmit()}
-              >
-                Submit
-              </button>
+                    <div className="container-contact100-form-btn">
+                        <div className="wrap-contact100-form-btn">
+                            <div className="contact100-form-bgbtn"></div>
+                            <button
+                                type="button"
+                                className="contact100-form-btn"
+                                onClick={() => handleSubmit()}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                    {/* <div className="container-contact100-form-btn">
+                        <span
+                            className="contact100-more"
+                            style={{ color: 'black' }}
+                        >
+                            Powered by React, Django and Tensorflow-Keras
+                        </span>
+                    </div> */}
+                </form>
             </div>
-          </div>
-        </form>
-      </div>
 
-      <span className="contact100-more">
-        Powered by React, Django and Tensorflow-Keras
-      </span>
-    </div>
-  );
+            <span className="contact100-more">
+                Powered by React, Django and Tensorflow-Keras
+            </span>
+        </div>
+    );
 };
 
 export default App;
