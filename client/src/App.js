@@ -6,7 +6,8 @@ const App = () => {
     const [result, setResult] = useState('Your results will be shown here');
     const [submit, setSubmit] = useState(false);
     const [status, setStatus] = useState('');
-    const [resColor, setResColor] = useState('grey'); // 0 = black, 1 = red, 2 = blue
+    const [resColor, setResColor] = useState('grey'); // 0 = black, 1 = red, 2 = green
+
     const [links, setLinks] = useState([]);
     const [positives, setPositives] = useState([]);
     const [comments, setComments] = useState([]);
@@ -15,42 +16,61 @@ const App = () => {
 
     const firstUpdate = useRef(true);
     useEffect(() => {
+        setLinks([]);
+        setPositives([]);
+        setComments([]);
         const postData = async () => {
             axios
                 .post('http://localhost:8000/api/', {
-                    user: query,
+                    user: query.toLowerCase().trim().replace(' ', ''),
                 })
                 .then((response) => {
                     console.log(response.data);
 
-                    let sum = 0;
-                    let indexes = [];
+                    if (response.data.status === 'error') {
+                        setResult(
+                            'A user with this username could not be found.'
+                        );
+                        setResColor('red');
+                        setStatus(
+                            "User not found. This user's may be banned, removed or NSFW."
+                        );
+                        loadingGif.removeAttribute('src');
+                        return;
+                    } else {
+                        let sum = 0;
+                        let indexes = [];
 
-                    for (let i = 0; i < response.data.predictions.length; i++) {
-                        sum = sum + response.data.predictions[i];
-                        if (response.data.predictions[i] === 1) {
-                            indexes.push(i);
+                        for (
+                            let i = 0;
+                            i < response.data.predictions.length;
+                            i++
+                        ) {
+                            sum = sum + response.data.predictions[i];
+                            if (response.data.predictions[i] === 1) {
+                                indexes.push(i);
+                            }
                         }
+
+                        setStatus('Done!');
+                        setLinks(response.data.links);
+                        setComments(response.data.comments);
+                        setPositives(indexes);
+
+                        loadingGif.removeAttribute('src');
+                        setResult(
+                            sum >= 1
+                                ? 'I think this user has toxic comments'
+                                : "I don't think this user has toxic comments"
+                        );
+                        setResColor(() => {
+                            if (sum >= 1) {
+                                return 'red';
+                            } else {
+                                return 'green';
+                            }
+                        });
                     }
-
-                    setStatus('Done!');
-                    setLinks(response.data.links);
-                    setComments(response.data.comments);
-                    setPositives(indexes);
-
-                    loadingGif.removeAttribute('src');
-                    setResult(
-                        sum >= 1
-                            ? 'I think this user has toxic comments'
-                            : "I don't think this user has toxic comments"
-                    );
-                    setResColor(() => {
-                        if (sum >= 1) {
-                            return 'red';
-                        } else {
-                            return 'green';
-                        }
-                    });
                 })
                 .catch((error) => {
                     console.error(error);
@@ -70,6 +90,10 @@ const App = () => {
     };
 
     const handleSubmit = () => {
+        if (query === '') {
+            return;
+        }
+
         setSubmit(!submit);
 
         loadingGif.src =
@@ -97,13 +121,13 @@ const App = () => {
                         data-validate="Message is required"
                     >
                         <span className="label-input100">Reddit username</span>
-                        <textarea
+                        <input
                             className="input100"
                             name="headline"
                             placeholder="Enter Username Here..."
                             value={query}
                             onChange={(event) => handleChange(event)}
-                        ></textarea>
+                        />
                     </div>
 
                     <div className="wrap-input100">
@@ -141,18 +165,42 @@ const App = () => {
                         </div>
                     </div>
                     <div className="container-contact100-form-btn">
-                        <ul>
-                            {positives.map(() => (
-                                <li>
-                                    <span
-                                        className="contact100-more"
-                                        style={{ color: 'black' }}
-                                    >
-                                        Comments:
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
+                        {resColor == 'green' ? (
+                            <span
+                                className="contact100-more"
+                                style={{ color: 'black' }}
+                            >
+                                This user doesn't have any toxic comments!"
+                            </span>
+                        ) : (
+                            <ul>
+                                {positives.map((positive, index) => (
+                                    <li key={index}>
+                                        <span
+                                            className="contact100-more"
+                                            style={{ color: 'black' }}
+                                        >
+                                            <span>
+                                                <em>Comment:</em>{' '}
+                                                {comments[positive]}
+                                            </span>
+                                            <br />
+                                            <span>
+                                                <em>Post:</em>{' '}
+                                                <a
+                                                    className="input100"
+                                                    style={{ color: 'black' }}
+                                                    href={links[positive]}
+                                                >
+                                                    Click here
+                                                </a>
+                                            </span>
+                                            <br />
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </form>
             </div>

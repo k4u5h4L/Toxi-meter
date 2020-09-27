@@ -32,17 +32,20 @@ def scrape_comments(user):
     browser.quit()
 
     comments = []
-
-    for comment in soup.findAll("p")[:-1]:
-        comments.append(comment.text)
-
-    # print(len(soup.findAll("p")[:-1]))
-
     links = []
 
-    for i in soup.findAll("h3"):
-        parent_element = i.parent.parent
-        # print('https://reddit.com' + str(parent_element.get('href')))
-        links.append('https://reddit.com' + str(parent_element.get('href')))
+    print(soup.findAll("h3")[0].text)
+
+    if soup.findAll("h3")[0].text == "Sorry, nobody on Reddit goes by that name.The person may have been banned or the username is incorrect.":
+        return (0, 0)
+    else:
+        for comment in soup.findAll("p")[:-1]:
+            comments.append(comment.text)
+
+        for i in soup.findAll("h3"):
+            parent_element = i.parent.parent
+            # print('https://reddit.com' + str(parent_element.get('href')))
+            links.append('https://reddit.com' +
+                         str(parent_element.get('href')))
 
     return (comments[:45], links[:45])

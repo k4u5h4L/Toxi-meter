@@ -28,24 +28,31 @@ def api(request):
 
         user = [request_body['user']]
         (comments, links) = scrape.scrape_comments(user[0])
-        # print(f"comments: {comments}")
-        sequences = tokenizer.texts_to_sequences(comments)
-        padded = pad_sequences(sequences, maxlen=150,
-                               padding='post', truncating='post')
-        pred_temp = model.predict(padded)
-        predictions = []
-        for pred in pred_temp:
-            predictions.append(np.round(pred[0]))
 
-        result = {}
+        if comments == 0 or links == 0:
+            print(f"User \tu/{user}\t not found!")
+            return HttpResponse(json.dumps({'status': 'error'}))
+        else:
+            # print(f"comments: {comments}")
+            print(f"User \tu/{user}\t found!")
+            sequences = tokenizer.texts_to_sequences(comments)
+            padded = pad_sequences(sequences, maxlen=150,
+                                   padding='post', truncating='post')
+            pred_temp = model.predict(padded)
+            predictions = []
+            for pred in pred_temp:
+                predictions.append(np.round(pred[0]))
 
-        result['route'] = 'api route POST'
-        result['predictions'] = np.array(predictions, dtype=int).tolist()
-        result['comments'] = comments
-        result['links'] = links
+            result = {}
 
-        print(result)
-        return HttpResponse(json.dumps(result))
+            result['route'] = 'api route POST'
+            result['predictions'] = np.array(predictions, dtype=int).tolist()
+            result['comments'] = comments
+            result['links'] = links
+            result['status'] = 'success'
+
+            # print(result)
+            return HttpResponse(json.dumps(result))
     else:
         testArr = [1.0, 0.0, 1.0, 0.0]
         return HttpResponse(json.dumps({'message': 'api route GET', 'array': testArr}))
