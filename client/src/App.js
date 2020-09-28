@@ -19,15 +19,16 @@ const App = () => {
         setLinks([]);
         setPositives([]);
         setComments([]);
-        const postData = () => {
+        const postData = async () => {
             axios
                 .post('http://localhost:8000/api/', {
                     user: query,
                 })
                 .then((response) => {
-                    console.log(response.data);
+                    const res = JSON.parse(response.data);
+                    console.log(res);
 
-                    if (response.data.status === 'error') {
+                    if (res.status === 'error') {
                         setResult(
                             'A user with this username could not be found.'
                         );
@@ -41,20 +42,18 @@ const App = () => {
                         let sum = 0;
                         let indexes = [];
 
-                        for (
-                            let i = 0;
-                            i < response.data.predictions.length;
-                            i++
-                        ) {
-                            sum = sum + response.data.predictions[i];
-                            if (response.data.predictions[i] === 1) {
+                        for (let i = 0; i < res.predictions.length; i++) {
+                            sum = sum + res.predictions[i];
+                            if (res.predictions[i] === 1) {
                                 indexes.push(i);
                             }
                         }
 
-                        setStatus('Done!');
-                        setLinks(response.data.links);
-                        setComments(response.data.comments);
+                        setStatus(
+                            'Done! I have seen 10 recent comments made by this user.'
+                        );
+                        setLinks(res.links);
+                        setComments(res.comments);
                         setPositives(indexes);
 
                         loadingGif.removeAttribute('src');
@@ -171,7 +170,7 @@ const App = () => {
                                 className="contact100-more"
                                 style={{ color: 'black' }}
                             >
-                                This user doesn't have any toxic comments!"
+                                This user doesn't have any toxic comments!
                             </span>
                         ) : (
                             <ul>
