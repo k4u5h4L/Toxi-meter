@@ -19,10 +19,10 @@ const App = () => {
         setLinks([]);
         setPositives([]);
         setComments([]);
-        const postData = async () => {
+        const postData = () => {
             axios
                 .post('http://localhost:8000/api/', {
-                    user: query.toLowerCase().trim().replace(' ', ''),
+                    user: query,
                 })
                 .then((response) => {
                     console.log(response.data);
@@ -82,6 +82,7 @@ const App = () => {
             return;
         }
         postData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [submit]);
 
     const handleChange = (e) => {
@@ -148,7 +149,7 @@ const App = () => {
                             style={{ color: 'black' }}
                         >
                             {status}
-                            <img id="loadingGif" width="195px" />
+                            <img id="loadingGif" width="195px" alt="" />
                         </span>
                     </div>
 
@@ -165,7 +166,7 @@ const App = () => {
                         </div>
                     </div>
                     <div className="container-contact100-form-btn">
-                        {resColor == 'green' ? (
+                        {resColor === 'green' ? (
                             <span
                                 className="contact100-more"
                                 style={{ color: 'black' }}
@@ -206,7 +207,8 @@ const App = () => {
             </div>
 
             <span className="contact100-more">
-                Powered by React, Django and Tensorflow-Keras
+                Powered by React, Django, Selenium, BeautifulSoup and
+                Tensorflow-Keras
             </span>
         </div>
     );

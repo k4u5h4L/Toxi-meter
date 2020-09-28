@@ -4,8 +4,9 @@ __pycache__/
 *$py.class
 
 # custom files
-main-server/__pycache__/
-form/__pycache__/
+tox_api/__pycache__/
+toxicity/__pycache__/
+temp/
 
 # C extensions
 *.so

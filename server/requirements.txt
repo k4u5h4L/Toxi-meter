@@ -1,0 +1,16 @@
+django==3.1.1
+django-cors-headers==3.5.0
+djangorestframework==3.11.1
+beautifulsoup4==4.9.1
+gunicorn
+lxml==4.5.2
+numpy==1.18.5
+selenium==3.141.0
+tensorflow==2.3.0
+urllib3==1.25.9
+whitenoise
+psycopg2
+gitignore
+dj-database-url
+dj-static
+static3
