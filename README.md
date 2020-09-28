@@ -15,7 +15,7 @@
 
 <br>
 <p align="center">
-<img width="320px" src="assets/logo.png" alt="toxi-meter logo"></img>
+<img width="460px" src="assets/logo.png" alt="toxi-meter logo"></img>
 </p><br>
 
 ## Technologies used:
