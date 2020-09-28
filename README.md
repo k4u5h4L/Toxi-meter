@@ -1,7 +1,7 @@
 <h1 align="center">Toxi-meter</h1></br>
 
 <p align="center">
-:unamused: A web app detects if a user on reddit has posted a toxic comment or not! :monocle_face:
+:unamused: A web app which detects if a user on reddit has posted a toxic comment or not! :monocle_face:
 </p>
 <br>
 
